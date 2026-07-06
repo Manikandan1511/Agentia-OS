@@ -1,0 +1,215 @@
+{
+  "_meta": {
+    "description": "GX10 Model Manager \u2014 Global Configuration",
+    "version": "4.0",
+    "auto_start_on_boot": true,
+    "watchdog_enabled": true,
+    "primary_model": "qwen35",
+    "engine": "vllm"
+  },
+  "always_on": {
+    "description": "Services that must ALWAYS be running \u2014 never stop, auto-restart on crash",
+    "auto_start": true,
+    "models": [
+      {
+        "name": "comfyui",
+        "display_name": "ComfyUI",
+        "port": 12345,
+        "type": "service",
+        "description": "AI Image Generation — Stable Diffusion/Comfy Workflow Engine",
+        "auto_start": true,
+        "always_on": true,
+        "start_command": "nohup /home/realmont/ai-studio/ComfyUI/venv/bin/python /home/realmont/ai-studio/ComfyUI/main.py --listen 0.0.0.0 --port 12345 --disable-auto-launch > /tmp/comfyui.log 2>&1 &",
+        "stop_command": "fuser -k 12345/tcp 2>/dev/null",
+        "startup_wait_seconds": 30,
+        "log_file": "/tmp/comfyui.log"
+      },
+      {
+        "name": "qwen35",
+        "display_name": "Qwen3-35B NVFP4",
+        "port": 45671,
+        "type": "model",
+        "description": "PRIMARY AI MODEL — Hermes agent main model. Takes ~2 min to load. DO NOT STOP.",
+        "size_vram_gb": 35,
+        "auto_start": true,
+        "always_on": true,
+        "start_command": "export VLLM_USE_V1=0 && export VLLM_NVFP4_GEMM_BACKEND=cutlass && nohup vllm serve $HOME/models/qwen3-35b-nvfp4 --max-model-len 131072 --gpu-memory-utilization 0.65 --kv-cache-dtype fp8 --port 45671 --trust-remote-code --enable-auto-tool-choice --enable-chunked-prefill --max-num-seqs 32 --enable-prefix-caching --reasoning-parser qwen3 --tool-call-parser qwen3_coder > /tmp/qwen35.log 2>&1 &",
+        "stop_command": "fuser -k 45671/tcp 2>/dev/null",
+        "startup_wait_seconds": 120,
+        "log_file": "/tmp/qwen35.log"
+      },
+      {
+        "name": "qwen36-vllm",
+        "display_name": "Qwen3.6-27B vLLM",
+        "port": 45672,
+        "type": "model",
+        "description": "Qwen3.6-27B NVFP4 vLLM \u2014 131k context, high performance. Primary for IDE/continue.dev usage.",
+        "size_vram_gb": 27,
+        "auto_start": true,
+        "always_on": true,
+        "start_command": "export VLLM_USE_V1=0 && export VLLM_NVFP4_GEMM_BACKEND=cutlass && nohup vllm serve $HOME/models/Qwen3.6-27B-NVFP4 --max-model-len 131072 --gpu-memory-utilization 0.65 --port 45672 --trust-remote-code --enable-chunked-prefill --max-num-seqs 64 --enable-auto-tool-choice --enable-prefix-caching --reasoning-parser qwen3 --tool-call-parser qwen3_coder > /tmp/qwen36-vllm.log 2>&1 &",
+        "stop_command": "fuser -k 45672/tcp 2>/dev/null",
+        "startup_wait_seconds": 180,
+        "log_file": "/tmp/qwen36-vllm.log"
+      },
+      {
+        "name": "gemma4",
+        "display_name": "Gemma4-12B",
+        "port": 34561,
+        "type": "model",
+        "description": "WebUI second model, GGUF via llama-server",
+        "size_vram_gb": 8,
+        "auto_start": true,
+        "always_on": true,
+        "start_command": "nohup $HOME/llama.cpp/build/bin/llama-server --model $HOME/models/gemma4-12b/gemma-4-12B-it-Q4_K_M.gguf --host 0.0.0.0 --port 34561 --n-gpu-layers 99 --ctx-size 8192 --threads 8 --jinja > /tmp/gemma4.log 2>&1 &",
+        "stop_command": "fuser -k 34561/tcp 2>/dev/null",
+        "startup_wait_seconds": 10,
+        "log_file": "/tmp/gemma4.log"
+      },
+      {
+        "name": "devstral",
+        "display_name": "Devstral-24B",
+        "port": 34560,
+        "type": "model",
+        "description": "Coding model for Vibe / Continue.dev",
+        "size_vram_gb": 15,
+        "auto_start": true,
+        "always_on": true,
+        "parameters": {
+          "ctx_size": 32768,
+          "n_gpu_layers": 99,
+          "threads": 8,
+          "enable_jinja": true,
+          "gpu_memory_utilization": 0.8
+        },
+        "start_command": "nohup $HOME/llama.cpp/build/bin/llama-server --model $HOME/models/devstral/Devstral-Small-2-24B-Instruct-2512-UD-Q4_K_XL.gguf --host 0.0.0.0 --port 34560 --n-gpu-layers 99 --ctx-size 32768 --threads 8 --jinja > /tmp/devstral.log 2>&1 &",
+        "stop_command": "fuser -k 34560/tcp 2>/dev/null",
+        "startup_wait_seconds": 10,
+        "log_file": "/tmp/devstral.log"
+      },
+      {
+        "name": "webui",
+        "display_name": "Open WebUI",
+        "port": 12343,
+        "type": "service",
+        "description": "Main WebUI dashboard \u2014 connects to all models",
+        "auto_start": true,
+        "always_on": true,
+        "start_command": "cd $HOME/open-webui-venv && . bin/activate && nohup open-webui serve --host 0.0.0.0 --port 12343 > /tmp/webui.log 2>&1 &",
+        "stop_command": "fuser -k 12343/tcp 2>/dev/null",
+        "startup_wait_seconds": 15,
+        "log_file": "/tmp/webui.log"
+      },
+      {
+        "name": "odysseus",
+        "display_name": "Odysseus AI",
+        "port": 12353,
+        "type": "service",
+        "description": "AI Workspace",
+        "auto_start": true,
+        "always_on": true,
+        "start_command": "cd $HOME/odysseus && source venv/bin/activate && nohup python -m uvicorn app:app --host 0.0.0.0 --port 12353 > /tmp/odysseus.log 2>&1 &",
+        "stop_command": "fuser -k 12353/tcp 2>/dev/null",
+        "startup_wait_seconds": 10,
+        "log_file": "/tmp/odysseus.log"
+      },
+      {
+        "name": "hermes",
+        "display_name": "Hermes WebUI",
+        "port": 12363,
+        "type": "service",
+        "description": "Hermes AI agent interface",
+        "auto_start": true,
+        "always_on": true,
+        "start_command": "cd $HOME/hermes-webui && HERMES_WEBUI_HOST=0.0.0.0 HERMES_WEBUI_PORT=12363 HERMES_WEBUI_AGENT_DIR=$HOME/hermes-agent HERMES_WEBUI_STATE_DIR=$HOME/.hermes/webui HERMES_CONFIG_PATH=$HOME/.hermes/config.yaml HERMES_WEBUI_SKIP_ONBOARDING=1 nohup $HOME/hermes-agent/venv/bin/python bootstrap.py --no-browser > /tmp/hermes-webui.log 2>&1 &",
+        "stop_command": "fuser -k 12363/tcp 2>/dev/null",
+        "startup_wait_seconds": 10,
+        "log_file": "/tmp/hermes-webui.log"
+      },
+      {
+        "name": "kanban",
+        "display_name": "Hermes Kanban",
+        "port": 12373,
+        "type": "service",
+        "description": "Hermes Kanban board",
+        "auto_start": true,
+        "always_on": true,
+        "start_command": "cd $HOME/hermes-agent && source venv/bin/activate && nohup hermes dashboard --port 12373 --host 0.0.0.0 --insecure > /tmp/hermes-dashboard.log 2>&1 &",
+        "stop_command": "fuser -k 12373/tcp 2>/dev/null",
+        "startup_wait_seconds": 10,
+        "log_file": "/tmp/hermes-dashboard.log"
+      },
+     {
+        "name": "agent-os",
+        "display_name": "Agentic OS",
+        "port": 12351,
+        "type": "service",
+        "description": "Mission Control — all agents, models, goals",
+        "auto_start": true,
+        "always_on": true,
+        "start_command": "cd /home/realmont/agent-os/source && PORT=12351 HOSTNAME=0.0.0.0 nohup npm start > /tmp/agent-os.log 2>&1 &",
+        "stop_command": "fuser -k 12351/tcp 2>/dev/null",
+        "startup_wait_seconds": 15,
+        "log_file": "/tmp/agent-os.log"
+       },
+      {
+        "name": "dashboard",
+        "display_name": "ALEXAN Web OS",
+        "port": 12393,
+        "type": "service",
+        "description": "Web DASHBOARD",
+        "auto_start": true,
+        "always_on": true,
+        "start_command": "cd /home/realmont/.gx10 && nohup python3 dashboard.py > /tmp/dashboard.log 2>&1 &",
+        "stop_command": "fuser -k 12393/tcp 2>/dev/null",
+        "startup_wait_seconds": 5,
+        "log_file": "/tmp/dashboard.log"
+      }
+    ]
+  },
+  "optional": {
+    "description": "Services that can be started/stopped as needed",
+    "auto_start": false,
+    "models": [
+      {
+        "name": "paperclip",
+        "display_name": "Paperclip",
+        "port": 3100,
+        "type": "service",
+        "description": "AI Company orchestrator",
+        "auto_start": false,
+        "always_on": false,
+        "start_command": "export PATH=$HOME/.local/bin:$PATH && nohup npx paperclipai run > /tmp/paperclip.log 2>&1 &",
+        "stop_command": "fuser -k 3100/tcp 2>/dev/null",
+        "startup_wait_seconds": 15,
+        "log_file": "/tmp/paperclip.log"
+      },
+      {
+        "name": "claude",
+        "display_name": "Claude Proxy",
+        "port": 12342,
+        "type": "service",
+        "description": "Claude Code proxy server",
+        "auto_start": false,
+        "always_on": false,
+        "start_command": "cd /home/realmont/free-claude-code && nohup uv run fcc-server > /tmp/claude-proxy.log 2>cd $HOME/free-claude-code && nohup uv run uvicorn server:app --host 0.0.0.0 --port 12342 > /tmp/claude-proxy.log 2>&1 &1 &",
+        "stop_command": "fuser -k 12342/tcp 2>/dev/null",
+        "startup_wait_seconds": 10,
+        "log_file": "/tmp/claude-proxy.log"
+      },
+      {
+        "name": "ollama",
+        "display_name": "Ollama Server",
+        "port": 23450,
+        "type": "model",
+        "description": "Ollama server \u2014 manages swappable models (llama, nemotron, qwen0.5)",
+        "auto_start": false,
+        "always_on": false,
+        "start_command": "export OLLAMA_HOST=127.0.0.1:23450 && export OLLAMA_MODELS=$HOME/.ollama/models && nohup ollama serve > /tmp/ollama.log 2>&1 &",
+        "stop_command": "fuser -k 23450/tcp 2>/dev/null; fuser -k 11434/tcp 2>/dev/null",
+        "startup_wait_seconds": 10,
+        "log_file": "/tmp/ollama.log"
+      }
+    ]
+  }
+}

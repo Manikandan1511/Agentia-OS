@@ -1,0 +1,101 @@
+{
+  "_meta": {
+    "description": "GX10 Auto Boot Orchestrator \u2014 sequenced startup for the 7 core services after reboot/crash",
+    "version": "1.0",
+    "depends_on": "~/.gx10/alexan.json",
+    "uses_manager": "~/alexan.sh (wraps ~/.gx10/model-manager.py)",
+    "created": "2026-07-02",
+    "note": "This file does NOT duplicate start_command strings. Every entry below calls './alexan.sh start <name>', which reads the real command straight from alexan.json. If you ever edit a start_command in alexan.json, this file needs no changes."
+  },
+  "boot_sequence": [
+    {
+      "step": 1,
+      "name": "qwen36-vllm",
+      "display_name": "Qwen3.6-27B vLLM",
+      "port": 45672,
+      "start_via": "./alexan.sh start qwen36-vllm",
+      "max_startup_wait_seconds": 600,
+      "wait_after_ready_seconds": 120,
+      "critical": true,
+      "note": "Primary model (per alexan.json _meta.primary_model). Orchestrator BLOCKS here, polling port 45672, for up to 10 min before moving on. Everything else depends on this being up."
+    },
+    {
+      "step": 2,
+      "name": "hermes",
+      "display_name": "Hermes WebUI",
+      "port": 12363,
+      "start_via": "./alexan.sh start hermes",
+      "max_startup_wait_seconds": 60,
+      "wait_after_ready_seconds": 60,
+      "critical": true,
+      "note": "Started 2 min after Qwen3.6 is confirmed ready, since Hermes agent talks to Qwen3.6 on 45672."
+    },
+    {
+      "step": 3,
+      "name": "webui",
+      "display_name": "Open WebUI",
+      "port": 12343,
+      "start_via": "./alexan.sh start webui",
+      "max_startup_wait_seconds": 60,
+      "wait_after_ready_seconds": 60,
+      "critical": false
+    },
+    {
+      "step": 4,
+      "name": "agent-os",
+      "display_name": "Agentic OS",
+      "port": 12351,
+      "start_via": "./alexan.sh start agent-os",
+      "max_startup_wait_seconds": 15,
+      "wait_after_ready_seconds": 60,
+      "critical": false
+    },
+    {
+      "step": 5,
+      "name": "dashboard",
+      "display_name": "ALEXAN Web OS",
+      "port": 12393,
+      "start_via": "./alexan.sh start dashboard",
+      "max_startup_wait_seconds": 5,
+      "wait_after_ready_seconds": 60,
+      "critical": false
+    },
+    {
+      "step": 6,
+      "name": "claude",
+      "display_name": "Claude Proxy",
+      "port": 12342,
+      "start_via": "./alexan.sh start claude",
+      "max_startup_wait_seconds": 10,
+      "wait_after_ready_seconds": 60,
+      "critical": false
+    },
+    {
+      "step": 7,
+      "name": "odysseus",
+      "display_name": "Odysseus AI",
+      "port": 12353,
+      "start_via": "./alexan.sh start odysseus",
+      "max_startup_wait_seconds": 10,
+      "wait_after_ready_seconds": 0,
+      "critical": false,
+      "note": "Last step in the sequence \u2014 no trailing wait needed."
+    },
+    {
+      "step": 8,
+      "name": "hermes",
+      "display_name": "Hermes WebUI",
+      "port": 12363,
+      "start_via": "./alexan.sh start 12363",
+      "max_startup_wait_seconds": 60,
+      "wait_after_ready_seconds": 0,
+      "critical": false,
+      "note": "Second pass safety net in case Hermes died between step 2 and the end of the boot sequence."
+    }
+  ],
+  "crash_watchdog": {
+    "enabled": true,
+    "check_interval_seconds": 300,
+    "note": "The watchdog action checks only these 7 services (independent of the always_on flags inside alexan.json). If one is down it restarts ONLY that one via its own start_via command. It never re-runs the full staged sequence on a crash, so a Hermes crash doesn't force a fresh 10-minute Qwen3.6 wait."
+  }
+}
