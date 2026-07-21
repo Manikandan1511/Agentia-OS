@@ -2,10 +2,10 @@
   "_meta": {
     "description": "GX10 Auto Boot Orchestrator \u2014 sequenced startup for the 7 core services after reboot/crash",
     "version": "1.0",
-    "depends_on": "~/.gx10/alexan.json",
-    "uses_manager": "~/alexan.sh (wraps ~/.gx10/model-manager.py)",
+    "depends_on": "~/.gx10/agentia.json",
+    "uses_manager": "~/agentia.sh (wraps ~/.gx10/agentia-model-manager.py)",
     "created": "2026-07-02",
-    "note": "This file does NOT duplicate start_command strings. Every entry below calls './alexan.sh start <name>', which reads the real command straight from alexan.json. If you ever edit a start_command in alexan.json, this file needs no changes."
+    "note": "This file does NOT duplicate start_command strings. Every entry below calls './agentia.sh start <name>', which reads the real command straight from agentia.json. If you ever edit a start_command in agentia.json, this file needs no changes."
   },
   "boot_sequence": [
     {
@@ -13,18 +13,18 @@
       "name": "qwen36-vllm",
       "display_name": "Qwen3.6-27B vLLM",
       "port": 45672,
-      "start_via": "./alexan.sh start qwen36-vllm",
+      "start_via": "./agentia.sh start qwen36-vllm",
       "max_startup_wait_seconds": 600,
       "wait_after_ready_seconds": 120,
       "critical": true,
-      "note": "Primary model (per alexan.json _meta.primary_model). Orchestrator BLOCKS here, polling port 45672, for up to 10 min before moving on. Everything else depends on this being up."
+      "note": "Primary model (per agentia.json _meta.primary_model). Orchestrator BLOCKS here, polling port 45672, for up to 10 min before moving on. Everything else depends on this being up."
     },
     {
       "step": 2,
       "name": "hermes",
       "display_name": "Hermes WebUI",
       "port": 12363,
-      "start_via": "./alexan.sh start hermes",
+      "start_via": "./agentia.sh start hermes",
       "max_startup_wait_seconds": 60,
       "wait_after_ready_seconds": 60,
       "critical": true,
@@ -35,7 +35,7 @@
       "name": "webui",
       "display_name": "Open WebUI",
       "port": 12343,
-      "start_via": "./alexan.sh start webui",
+      "start_via": "./agentia.sh start webui",
       "max_startup_wait_seconds": 60,
       "wait_after_ready_seconds": 60,
       "critical": false
@@ -45,7 +45,7 @@
       "name": "agent-os",
       "display_name": "Agentic OS",
       "port": 12351,
-      "start_via": "./alexan.sh start agent-os",
+      "start_via": "./agentia.sh start agent-os",
       "max_startup_wait_seconds": 15,
       "wait_after_ready_seconds": 60,
       "critical": false
@@ -53,9 +53,9 @@
     {
       "step": 5,
       "name": "dashboard",
-      "display_name": "ALEXAN Web OS",
+      "display_name": "agentia Web OS",
       "port": 12393,
-      "start_via": "./alexan.sh start dashboard",
+      "start_via": "./agentia.sh start dashboard",
       "max_startup_wait_seconds": 5,
       "wait_after_ready_seconds": 60,
       "critical": false
@@ -65,7 +65,7 @@
       "name": "claude",
       "display_name": "Claude Proxy",
       "port": 12342,
-      "start_via": "./alexan.sh start claude",
+      "start_via": "./agentia.sh start claude",
       "max_startup_wait_seconds": 10,
       "wait_after_ready_seconds": 60,
       "critical": false
@@ -75,7 +75,7 @@
       "name": "odysseus",
       "display_name": "Odysseus AI",
       "port": 12353,
-      "start_via": "./alexan.sh start odysseus",
+      "start_via": "./agentia.sh start odysseus",
       "max_startup_wait_seconds": 10,
       "wait_after_ready_seconds": 0,
       "critical": false,
@@ -86,7 +86,7 @@
       "name": "hermes",
       "display_name": "Hermes WebUI",
       "port": 12363,
-      "start_via": "./alexan.sh start 12363",
+      "start_via": "./agentia.sh start 12363",
       "max_startup_wait_seconds": 60,
       "wait_after_ready_seconds": 0,
       "critical": false,
@@ -96,6 +96,6 @@
   "crash_watchdog": {
     "enabled": true,
     "check_interval_seconds": 300,
-    "note": "The watchdog action checks only these 7 services (independent of the always_on flags inside alexan.json). If one is down it restarts ONLY that one via its own start_via command. It never re-runs the full staged sequence on a crash, so a Hermes crash doesn't force a fresh 10-minute Qwen3.6 wait."
+    "note": "The watchdog action checks only these 7 services (independent of the always_on flags inside agentia.json). If one is down it restarts ONLY that one via its own start_via command. It never re-runs the full staged sequence on a crash, so a Hermes crash doesn't force a fresh 10-minute Qwen3.6 wait."
   }
 }

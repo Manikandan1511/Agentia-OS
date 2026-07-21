@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
 """
-alexan-boot-orchestrator.py — GX10 Auto Boot Orchestrator v1.0
+agentia-boot-orchestrator.py — GX10 Auto Boot Orchestrator v1.0
 
-Reads the staged startup plan from ~/.gx10/alexan-auto-boot.json and drives
-~/alexan.sh (which reads ~/.gx10/alexan.json) to bring up the 7 core services
+Reads the staged startup plan from ~/.gx10/agentia-auto-boot.json and drives
+~/agentia.sh (which reads ~/.gx10/agentia.json) to bring up the 7 core services
 in the correct order after a reboot or crash.
 
 It does NOT duplicate any start_command — every step just shells out to
-"./alexan.sh start <name>", same as you'd type by hand.
+"./agentia.sh start <name>", same as you'd type by hand.
 
 Usage:
-    alexan-boot-orchestrator.py boot       — Full staged startup (run at system boot)
-    alexan-boot-orchestrator.py watchdog   — Check the 7 services, restart any that are down
-    alexan-boot-orchestrator.py install    — Install systemd unit + cron watchdog entry
+    agentia-boot-orchestrator.py boot       — Full staged startup (run at system boot)
+    agentia-boot-orchestrator.py watchdog   — Check the 7 services, restart any that are down
+    agentia-boot-orchestrator.py install    — Install systemd unit + cron watchdog entry
 """
 import json
 import os
@@ -22,8 +22,8 @@ import time
 from datetime import datetime, timezone
 
 HOME = os.path.expanduser("~")
-BOOT_CONFIG = os.path.join(HOME, ".gx10", "alexan-auto-boot.json")
-LOG_FILE = "/tmp/alexan-boot-orchestrator.log"
+BOOT_CONFIG = os.path.join(HOME, ".gx10", "agentia-auto-boot.json")
+LOG_FILE = "/tmp/agentia-boot-orchestrator.log"
 
 
 def log(msg):
@@ -111,7 +111,7 @@ After=network.target
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/python3 {HOME}/.gx10/alexan-boot-orchestrator.py boot
+ExecStart=/usr/bin/python3 {HOME}/.gx10/agentia-boot-orchestrator.py boot
 RemainAfterExit=no
 StandardOutput=journal
 StandardError=journal
@@ -131,7 +131,7 @@ WantedBy=multi-user.target
     print(f"✅ Installed {unit_path} and enabled it (runs the full staged boot on every reboot)")
 
     cron_line = (
-        f"*/5 * * * * /usr/bin/python3 {HOME}/.gx10/alexan-boot-orchestrator.py watchdog "
+        f"*/5 * * * * /usr/bin/python3 {HOME}/.gx10/agentia-boot-orchestrator.py watchdog "
         f">> {LOG_FILE} 2>&1"
     )
     current = subprocess.run(["crontab", "-l"], capture_output=True, text=True)
