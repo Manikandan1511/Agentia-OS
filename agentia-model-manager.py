@@ -1,23 +1,23 @@
 #!/usr/bin/env python3
 """
-alexis.sh — GX10 Model Manager v3.1
+agentia.sh — GX10 Model Manager v3.0
 
-Reads configuration from ~/.gx10/alexan.json
+Reads configuration from ~/.gx10/agentia.json
 Manages ALL models and services on the GX10 system.
 
 Usage:
-    alexan.sh status           — Show ALL running models (compact layout)
-    alexan.sh help             — Show all commands and model shortcuts
-    alexan.sh start-all        — Start all always-on models
-    alexan.sh stop-all         — Stop all running models
-    alexan.sh start <name>     — Start by name or port
-    alexan.sh stop <name>      — Stop by name or port
-    alexan.sh restart <name>   — Stop then start by name or port
-    alexan.sh toggle <name>    — Toggle on/off
-    alexan.sh logs <name>      — Show logs (follow if running, 50 lines if not)
-    alexan.sh logs <name> --lines 100  — Show N lines
-    alexan.sh watchdog         — Auto-restart any crashed always-on models
-    alexan.sh boot-setup       — Install systemd + crontab for auto-restart
+    agentia.sh status           — Show ALL running models (compact layout)
+    agentia.sh help             — Show all commands and model shortcuts
+    agentia.sh start-all        — Start all always-on models
+    agentia.sh stop-all         — Stop all running models
+    agentia.sh start <name>     — Start by name or port
+    agentia.sh stop <name>      — Stop by name or port
+    agentia.sh restart <name>   — Stop then start by name or port
+    agentia.sh toggle <name>    — Toggle on/off
+    agentia.sh logs <name>      — Show logs (follow if running, 50 lines if not)
+    agentia.sh logs <name> --lines 100  — Show N lines
+    agentia.sh watchdog         — Auto-restart any crashed always-on models
+    agentia.sh boot-setup       — Install systemd + crontab for auto-restart
 """
 
 import json
@@ -28,7 +28,7 @@ import time
 import signal
 from datetime import datetime, timezone
 
-CONFIG_PATH = os.path.expanduser("~/.gx10/alexan.json")
+CONFIG_PATH = os.path.expanduser("~/.gx10/agentia.json")
 PID_DIR = os.path.expanduser("~/.gx10/pids")
 STATE_DIR = os.path.expanduser("~/.gx10/state")
 os.makedirs(STATE_DIR, exist_ok=True)
@@ -162,7 +162,7 @@ def show_status(config):
 
     print("")
     print("=" * 120)
-    print("  ALEXAN Model Manager — ALL SERVICES")
+    print("  agentia Model Manager — ALL SERVICES")
     print("=" * 120)
     now = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC")
     print(f"  Timestamp: {now}")
@@ -589,12 +589,12 @@ def show_help(config):
     # System commands
     print("SYSTEM COMMANDS")
     print("-" * 90)
-    print(f"  alexan.sh status            — Show all models (compact layout)")
-    print(f"  alexan.sh help              — Show this help page")
-    print(f"  alexan.sh start-all         — Start all always-on models")
-    print(f"  alexan.sh stop-all          — Stop all running models")
-    print(f"  alexan.sh watchdog          — Auto-restart crashed always-on models")
-    print(f"  alexan.sh boot-setup        — Install systemd + crontab auto-restart")
+    print(f"  agentia.sh status            — Show all models (compact layout)")
+    print(f"  agentia.sh help              — Show this help page")
+    print(f"  agentia.sh start-all         — Start all always-on models")
+    print(f"  agentia.sh stop-all          — Stop all running models")
+    print(f"  agentia.sh watchdog          — Auto-restart crashed always-on models")
+    print(f"  agentia.sh boot-setup        — Install systemd + crontab auto-restart")
     print("")
 
     # Always-on models
@@ -609,10 +609,10 @@ def show_help(config):
         port = m["port"]
         desc = short_desc(m.get("description", ""), 40)
         print(f"  {name:<20} port {port}  [{desc}]")
-        print(f"    ./alexan.sh start {name}     — Start")
-        print(f"    ./alexan.sh stop {name}      — Stop")
-        print(f"    ./alexan.sh toggle {name}    — Toggle on/off")
-        print(f"    ./alexan.sh logs {name}       — Follow logs (or --lines N)")
+        print(f"    ./agentia.sh start {name}     — Start")
+        print(f"    ./agentia.sh stop {name}      — Stop")
+        print(f"    ./agentia.sh toggle {name}    — Toggle on/off")
+        print(f"    ./agentia.sh logs {name}       — Follow logs (or --lines N)")
         print("")
 
     print("OPTIONAL MODELS")
@@ -623,10 +623,10 @@ def show_help(config):
             port = m["port"]
             desc = short_desc(m.get("description", ""), 40)
             print(f"  {name:<20} port {port}  [{desc}]")
-            print(f"    ./alexan.sh start {name}     — Start")
-            print(f"    ./alexan.sh stop {name}      — Stop")
-            print(f"    ./alexan.sh toggle {name}    — Toggle on/off")
-            print(f"    ./alexan.sh logs {name}       — Follow logs (or --lines N)")
+            print(f"    ./agentia.sh start {name}     — Start")
+            print(f"    ./agentia.sh stop {name}      — Stop")
+            print(f"    ./agentia.sh toggle {name}    — Toggle on/off")
+            print(f"    ./agentia.sh logs {name}       — Follow logs (or --lines N)")
             print("")
     else:
         print("  (no optional models)")
@@ -634,9 +634,9 @@ def show_help(config):
 
     print("LOG COMMANDS")
     print("-" * 90)
-    print("  ./alexan.sh logs qwen35                — Follow mode (tail -f) if running")
-    print("  ./alexan.sh logs qwen35 --lines 100    — Show last 100 lines")
-    print("  ./alexan.sh logs qwen35 --lines 1000   — Show last 1000 lines")
+    print("  ./agentia.sh logs qwen35                — Follow mode (tail -f) if running")
+    print("  ./agentia.sh logs qwen35 --lines 100    — Show last 100 lines")
+    print("  ./agentia.sh logs qwen35 --lines 1000   — Show last 1000 lines")
     print("")
     print("=" * 90)
     print("")
@@ -702,7 +702,7 @@ def main():
 
     elif action == "start":
         if len(sys.argv) < 3:
-            print("Usage: alexan.sh start <name|port>")
+            print("Usage: agentia.sh start <name|port>")
             sys.exit(1)
         arg = sys.argv[2]
         model = get_model_by_name(config, arg)
@@ -713,7 +713,7 @@ def main():
 
     elif action == "stop":
         if len(sys.argv) < 3:
-            print("Usage: alexan.sh stop <name|port>")
+            print("Usage: agentia.sh stop <name|port>")
             sys.exit(1)
         arg = sys.argv[2]
         model = get_model_by_name(config, arg)
@@ -724,7 +724,7 @@ def main():
 
     elif action == "restart":
         if len(sys.argv) < 3:
-            print("Usage: alexan.sh restart <name|port>")
+            print("Usage: agentia.sh restart <name|port>")
             sys.exit(1)
         arg = sys.argv[2]
         model = get_model_by_name(config, arg)
@@ -735,7 +735,7 @@ def main():
 
     elif action == "toggle":
         if len(sys.argv) < 3:
-            print("Usage: alexan.sh toggle <name|port>")
+            print("Usage: agentia.sh toggle <name|port>")
             sys.exit(1)
         arg = sys.argv[2]
         model = get_model_by_name(config, arg)
@@ -749,7 +749,7 @@ def main():
 
     elif action == "logs":
         if len(sys.argv) < 3:
-            print("Usage: alexan.sh logs <name|port> [--lines N]")
+            print("Usage: agentia.sh logs <name|port> [--lines N]")
             sys.exit(1)
         arg = sys.argv[2]
         model = get_model_by_name(config, arg)

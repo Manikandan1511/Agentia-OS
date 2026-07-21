@@ -154,7 +154,7 @@
        },
       {
         "name": "dashboard",
-        "display_name": "ALEXAN Web OS",
+        "display_name": "agentia Web OS",
         "port": 12393,
         "type": "service",
         "description": "Web DASHBOARD",
